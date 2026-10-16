@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber Beggar: Homeless Metaverse</title>
+  <style>
+    :root {
+      --bg: #121214;
+      --card-bg: #1e1e24;
+      --accent: #f59e0b;
+      --text: #f3f4f6;
+      --dim-text: #9ca3af;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .game-container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .goal-panel {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid #2d2d38;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .progress-bar-bg {
+      background: #2a2a35;
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #f59e0b, #10b981);
+      width: 32%;
+      height: 100%;
+      transition: width 0.4s ease;
+    }
+    .stage {
+      position: relative;
+      background: radial-gradient(circle at bottom, #2b2b36 0%, #17171c 80%);
+      border-radius: 16px;
+      height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      overflow: hidden;
+      border: 1px solid #383847;
+    }
+    .speech-bubble {
+      position: absolute;
+      top: 24px;
+      background: #ffffff;
+      color: #111;
+      padding: 10px 16px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      max-width: 80%;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      animation: float 2s infinite ease-in-out;
+      text-align: center;
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 8px 0;
+      border-style: solid;
+      border-color: #ffffff transparent;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .character {
+      width: 130px;
+      height: 160px;
+      position: relative;
+      transition: transform 0.15s ease-in-out;
+      transform-origin: bottom center;
+    }
+    .char-head {
+      width: 50px;
+      height: 50px;
+      background: #fcd34d;
+      border-radius: 50%;
+      margin: 0 auto;
+      position: relative;
+      border: 3px solid #111;
+    }
+    .char-eyes {
+      position: absolute;
+      top: 18px;
+      left: 10px;
+      width: 26px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .eye {
+      width: 5px;
+      height: 5px;
+      background: #111;
+      border-radius: 50%;
+    }
+    .char-mouth {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 4px;
+      background: #111;
+      border-radius: 2px;
+    }
+    .char-body {
+      width: 64px;
+      height: 70px;
+      background: #6b7280;
+      border-radius: 10px 10px 0 0;
+      margin: 2px auto 0;
+      border: 3px solid #111;
+    }
+    .cardboard-box {
+      position: absolute;
+      bottom: 0;
+      width: 180px;
+      height: 75px;
+      background: #b45309;
+      border: 3px solid #111;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fde68a;
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3);
+      z-index: 2;
+    }
+    .bowl {
+      position: absolute;
+      bottom: 24px;
+      width: 44px;
+      height: 22px;
+      background: #9ca3af;
+      border: 2px solid #111;
+      border-radius: 0 0 20px 20px;
+      cursor: pointer;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    }
+    .bowl:active { transform: scale(0.92); }
+    .bowing { animation: bow 0.6s 3 ease-in-out; }
+    @keyframes bow {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-25deg) translateY(10px); }
+    }
+    .ramen-eating { animation: shake 0.2s 6 ease-in-out; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(6px); }
+    }
+    .floating-coin {
+      position: absolute;
+      color: #f59e0b;
+      font-weight: bold;
+      font-size: 1.2rem;
+      pointer-events: none;
+      animation: fly-up 0.8s forwards ease-out;
+      z-index: 10;
+    }
+    @keyframes fly-up {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-60px); }
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .btn {
+      background: var(--card-bg);
+      border: 1px solid #343442;
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn:hover { background: #282834; border-color: #4b4b5e; }
+    .btn:active { transform: scale(0.97); }
+    .btn-free { grid-column: span 2; background: #22222c; border-color: #3b3b4d; }
+    .btn-donate { border-color: #d97706; background: linear-gradient(180deg, #1f1d19, #282015); }
+    .btn-title { font-weight: 700; font-size: 0.95rem; }
+    .btn-desc { font-size: 0.75rem; color: var(--dim-text); }
+    .badge {
+      background: var(--accent);
+      color: #111;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+    }
+    .donor-wall {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 10px 14px;
+      border: 1px solid #2d2d38;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .donor-marquee {
+      display: inline-block;
+      animation: marquee 16s linear infinite;
+      color: var(--dim-text);
+    }
+    .donor-marquee b { color: var(--accent); }
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container">
+  <div class="goal-panel">
+    <div class="goal-header">
+      <span id="goal-title">Goal: Buy 10 Real Ramen Packs</span>
+      <span id="goal-stats">$32 / $100</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="goal-progress"></div>
+    </div>
+  </div>
+
+  <div class="stage" id="stage" onclick="handleStageClick(event)">
+    <div class="speech-bubble" id="dialogue">Spare some change, kind stranger! A click feeds my soul!</div>
+    
+    <div class="character" id="character">
+      <div class="char-head">
+        <div class="char-eyes">
+          <div class="eye"></div>
+          <div class="eye"></div>
+        </div>
+        <div class="char-mouth"></div>
+      </div>
+      <div class="char-body"></div>
+    </div>
+
+    <div class="cardboard-box" id="box">CYBER SHELTER</div>
+    <div class="bowl" title="Click to grant karma">🪙</div>
+  </div>
+
+  <div class="donor-wall">
+    <span>📢 Patrons:</span>
+    <div class="donor-marquee" id="donor-wall">
+      Special thanks to <b>Anonymous Hero</b> for $1 Ramen! | Thanks to <b>Kind Internet Stranger</b> for $2 Bows! | Shoutout to <b>Big Baller</b> for $5 Gold Box!
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-free" onclick="tapBowl(event)">
+      <div class="btn-title">Rattle The Cup (Free Click)</div>
+      <div class="btn-desc">Karma Generated: <span id="free-karma-count">0</span></div>
+    </button>
+
+    <!-- Buy Ramen ($1) -->
+    <button class="btn btn-donate" onclick="executeDonate(1)">
+      <span class="badge">$1 USD</span>
+      <div class="btn-title">🍜 Buy Ramen</div>
+      <div class="btn-desc">Furious slurping + Shoutout</div>
+    </button>
+
+    <!-- Deep Bow ($2) -->
+    <button class="btn btn-donate" onclick="executeDonate(2)">
+      <span class="badge">$2 USD</span>
+      <div class="btn-title">🙇 Triple Bow</div>
+      <div class="btn-desc">Dignity surrendered 3x</div>
+    </button>
+
+    <!-- Box Upgrade ($5) -->
+    <button class="btn btn-donate" onclick="executeDonate(5)">
+      <span class="badge">$5 USD</span>
+      <div class="btn-title">📦 Upgrade Box</div>
+      <div class="btn-desc">Golden cardboard + Naming rights</div>
+    </button>
+
+    <!-- Sugar Daddy ($10) -->
+    <button class="btn btn-donate" onclick="executeDonate(10)">
+      <span class="badge">$10 USD</span>
+      <div class="btn-title">👑 Sugar Daddy</div>
+      <div class="btn-desc">Full spectacle + VIP Status</div>
+    </button>
+  </div>
+</div>
+
+<script>
+  let freeKarma = 0;
+  let currentRaised = 32;
+  const targetGoal = 100;
+
+  const dialogueBox = document.getElementById('dialogue');
+  const character = document.getElementById('character');
+  const karmaCounter = document.getElementById('free-karma-count');
+  const goalProgress = document.getElementById('goal-progress');
+  const goalStats = document.getElementById('goal-stats');
+  const cardboardBox = document.getElementById('box');
+  const donorWall = document.getElementById('donor-wall');
+
+  const paymentUrls = {
+    1: "https://buy.stripe.com/5kQ3cxbpHb8G7Dd1U2cjS00",  // $1 Ramen
+    2: "https://buy.stripe.com/8x2dRb3XfccK3mXaqycjS01",  // $2 Bow
+    5: "https://buy.stripe.com/eVq4gB3Xfgt00aL0PYcjS02",  // $5 Upgrade
+    10: "https://buy.stripe.com/dRmdRb3Xfa4CbTt2Y6cjS03"  // $10 Sugar Daddy
+  };
+
+  const freeDialogues = [
+    "Thanks for the click! My tin cup is shining!",
+    "One click today, good luck coming your way!",
+    "Clicks build character! Keep 'em coming!",
+    "No cash? No problem! Your attention is priceless!",
+    "Almost worn out this bowl, thank you kind soul!"
+  ];
+
+  let audioCtx = null;
+  function playBeep(freq = 440, duration = 0.08, type = 'sine') {
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {
+      console.warn("Audio skipped:", e);
+    }
+  }
+
+  function tapBowl(event) {
+    freeKarma++;
+    karmaCounter.innerText = freeKarma;
+    playBeep(880, 0.05, 'triangle');
+    const randomIndex = Math.floor(Math.random() * freeDialogues.length);
+    dialogueBox.innerText = freeDialogues[randomIndex];
+    spawnFloatingText(event.clientX, event.clientY, "+1 Karma");
+
+    character.style.transform = "scaleY(0.9) translateY(4px)";
+    setTimeout(() => { character.style.transform = "scaleY(1) translateY(0)"; }, 100);
+  }
+
+  function handleStageClick(event) {
+    if (event.target.classList.contains('bowl')) return;
+    spawnFloatingText(event.clientX, event.clientY, "❤️");
+    playBeep(520, 0.04, 'sine');
+  }
+
+  function spawnFloatingText(x, y, text) {
+    const coin = document.createElement('div');
+    coin.className = 'floating-coin';
+    coin.innerText = text;
+    coin.style.left = `${(x || window.innerWidth / 2) - 20}px`;
+    coin.style.top = `${(y || window.innerHeight / 2) - 30}px`;
+    document.body.appendChild(coin);
+    setTimeout(() => coin.remove(), 800);
+  }
+
+  function executeDonate(amount) {
+    const targetUrl = paymentUrls[amount];
+    if (!targetUrl) return;
+
+    try {
+      const popup = window.open(targetUrl, "_blank", "noopener,noreferrer");
+      if (!popup || popup.closed || typeof popup.closed === "undefined") {
+        window.location.href = targetUrl;
+      }
+    } catch (e) {
+      window.location.href = targetUrl;
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("paid") === "true") {
+        const action = urlParams.get("action") || "ramen";
+        const donor = urlParams.get("donor") || "Venerable Benefactor";
+        const amount = parseInt(urlParams.get("amount") || "1", 10);
+        triggerLiveReaction(donor, amount, action);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (e) {
+      console.warn("URL parse skipped:", e);
+    }
+  });
+
+  function triggerLiveReaction(donorName, amount, animType) {
+    currentRaised += amount;
+    const percentage = Math.min((currentRaised / targetGoal) * 100, 100);
+    goalProgress.style.width = `${percentage}%`;
+    goalStats.innerText = `$${currentRaised} / $${targetGoal}`;
+
+    playBeep(523, 0.1, 'square');
+    setTimeout(() => playBeep(659, 0.1, 'square'), 100);
+    setTimeout(() => playBeep(784, 0.2, 'square'), 200);
+
+    donorWall.innerHTML = `Shoutout to <b>${donorName}</b> for donating $${amount}! | ` + donorWall.innerHTML;
+
+    if (animType === 'bow') {
+      dialogueBox.innerText = `My liege [${donorName}]! Accept my deepest gratitude!`;
+      character.classList.add('bowing');
+      setTimeout(() => character.classList.remove('bowing'), 1800);
+    } else if (animType === 'ramen') {
+      dialogueBox.innerText = `[${donorName}]'s ramen hits different! *Slurp slurp*!`;
+      character.classList.add('ramen-eating');
+      setTimeout(() => character.classList.remove('ramen-eating'), 1200);
+    } else if (animType === 'upgrade') {
+      dialogueBox.innerText = `Bless you [${donorName}]! First penthouse cardboard box unlocked!`;
+      cardboardBox.style.background = "linear-gradient(45deg, #d97706, #fbbf24)";
+      cardboardBox.style.color = "#111";
+      cardboardBox.innerText = `Sponsored by ${donorName}`;
+    } else {
+      dialogueBox.innerText = `ALL HAIL! Benefactor [${donorName}] has sponsored the entire shelter!`;
+      character.classList.add('bowing');
+      cardboardBox.style.background = "linear-gradient(45deg, #ec4899, #8b5cf6)";
+      cardboardBox.style.color = "#fff";
+      cardboardBox.innerText = `👑 ${donorName}'s Villa`;
+      setTimeout(() => character.classList.remove('bowing'), 1800);
+    }
+  }
+</script>
+</body>
+</html>
